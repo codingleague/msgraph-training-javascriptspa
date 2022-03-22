@@ -6,7 +6,7 @@ const authenticatedNav = document.getElementById('authenticated-nav');
 const accountNav = document.getElementById('account-nav');
 const mainContainer = document.getElementById('main-container');
 
-const Views = { error: 1, home: 2, calendar: 3 };
+const Views = { error: 1, home: 2, calendar: 3, todo: 4 };
 
 function createElement(type, className, text) {
   let element = document.createElement(type);
@@ -34,6 +34,14 @@ function showAuthenticatedNav(user, view) {
     calendarNav.appendChild(calendarLink);
 
     authenticatedNav.appendChild(calendarNav);
+
+    // Add Todo list link
+    let todoNav = createElement('li', 'nav-item');
+    let todoLink = createElement('button', `btn btn-link nav-link${view === Views.todo ? ' active' : '' }`, 'TodoList');
+    todoLink.setAttribute('onclick', 'getTodoList();');
+    todoNav.appendChild(todoLink);
+
+    authenticatedNav.appendChild(todoNav);
   }
 }
 
@@ -163,6 +171,10 @@ function showCalendar(events) {
   subject.setAttribute('scope', 'col');
   headerrow.appendChild(subject);
 
+  let bodyPreview = createElement('th', null, 'bodyPreview');
+  subject.setAttribute('scope', 'col');
+  headerrow.appendChild(bodyPreview);
+
   let start = createElement('th', null, 'Start');
   start.setAttribute('scope', 'col');
   headerrow.appendChild(start);
@@ -185,6 +197,9 @@ function showCalendar(events) {
     let subjectcell = createElement('td', null, event.subject);
     eventrow.appendChild(subjectcell);
 
+    let bodyPreviewcell = createElement('td', null, event.bodyPreview);
+    eventrow.appendChild(bodyPreviewcell);
+
     // Use moment.utc() here because times are already in the user's
     // preferred timezone, and we don't want moment to try to change them to the
     // browser's timezone
@@ -200,6 +215,60 @@ function showCalendar(events) {
   mainContainer.innerHTML = '';
   mainContainer.appendChild(div);
 }
+
+function showTodo(events) {
+  let div = document.createElement('div');
+
+  div.appendChild(createElement('h1', 'mb-3', 'Todo'));
+
+  let table = createElement('table', 'table');
+  div.appendChild(table);
+
+  let thead = document.createElement('thead');
+  table.appendChild(thead);
+
+  let headerrow = document.createElement('tr');
+  thead.appendChild(headerrow);
+
+  let title = createElement('th', null, 'Title');
+  title.setAttribute('scope', 'col');
+  headerrow.appendChild(title);
+
+  let createdDateTime = createElement('th', null, 'CreatedDateTime');
+  createdDateTime.setAttribute('scope', 'col');
+  headerrow.appendChild(createdDateTime);
+
+  let status = createElement('th', null, 'Status');
+  status.setAttribute('scope', 'col');
+  headerrow.appendChild(status);
+
+  let tbody = document.createElement('tbody');
+  table.appendChild(tbody);
+
+  for (const event of events) {
+    let eventrow = document.createElement('tr');
+    eventrow.setAttribute('key', event.id);
+    tbody.appendChild(eventrow);
+
+    let titlecell = createElement('td', null, event.title);
+    eventrow.appendChild(titlecell);
+
+    let createdDateTimecell = createElement('td', null, 
+    moment.utc(event.createdDateTime).format('M/D/YY h:mm A'));
+    eventrow.appendChild(createdDateTimecell);
+
+    let statuscell = createElement('td', null, event.status);
+    eventrow.appendChild(statuscell);
+
+    // Use moment.utc() here because times are already in the user's
+    // preferred timezone, and we don't want moment to try to change them to the
+    // browser's timezone
+  }
+
+  mainContainer.innerHTML = '';
+  mainContainer.appendChild(div);
+}
+
 // </showCalendarSnippet>
 
 // <showNewEventFormSnippet>
@@ -301,6 +370,9 @@ function updatePage(view, data) {
     case Views.calendar:
       showCalendar(data);
       break;
+      case Views.todo:
+        showTodo(data);
+        break;
   }
 }
 // </updatePageSnippet>

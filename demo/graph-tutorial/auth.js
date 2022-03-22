@@ -30,6 +30,7 @@ async function signIn() {
 
     // Get the user's profile from Graph
     const user = await getUser();
+    console.log(user);
     // Save the profile in session
     sessionStorage.setItem('graphUser', JSON.stringify(user));
     updatePage(Views.home);
